@@ -44,10 +44,14 @@ export class TaskRenderer {
     for (const task of Object.keys(this.cachedTasks)) {
       lines.push(
         `${this.taskNameMapping[task]} () {`,
+        `echo "Running task: ${task}"`,
         this.renderTaskScript(task),
         '}',
       );
     }
+    // TODO: find a better way to run a specific task
+    lines.push('$1;');
+
     return lines.join('\n');
   }
 

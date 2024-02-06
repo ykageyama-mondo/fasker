@@ -1,4 +1,5 @@
-import fs, { existsSync, mkdir } from 'fs';
+import { spawnSync } from 'child_process';
+import fs, { existsSync } from 'fs';
 import path from 'path';
 import { TasksManifest } from 'projen';
 import { logger } from './lib/logger';
@@ -67,27 +68,46 @@ function prettifyBash(script: string) {
   return output.join('\n');
 }
 
-async function cacheTasks() {
+export async function cacheTasks() {
   const fileStats = getTaskJsonDetails();
   const ensureDirPromise = ensureDir(cachePath);
   const renderer = new TaskRenderer(parseTaskJson().tasks ?? {});
-  const fileName = fileStats.mtime;
+  const fileName = Math.floor(fileStats.mtimeMs).toString();
   await ensureDirPromise;
 
   const script = renderer.render();
+  const cacheFilePath = path.join(cachePath, `${fileName}.sh`);
 
-  fs.writeFileSync(
-    path.join(cachePath, `${fileName}.sh`),
-    prettify ? prettifyBash(script) : script,
-  );
+  fs.writeFileSync(cacheFilePath, prettify ? prettifyBash(script) : script);
+  fs.chmodSync(cacheFilePath, '755');
 }
 
-console.log(process.env);
+// TODO optimise
+function execTask(taskName: string) {
+  const fileStats = getTaskJsonDetails();
+  const fileName = Math.floor(fileStats.mtimeMs).toString();
+  const scriptPath = path.join(cachePath, `${fileName}.sh`);
+  console.log(scriptPath);
+  const PATH = `${process.env.PATH}:${path.resolve('node_modules/.bin')}`;
 
-cacheTasks()
-  .then(() => {
-    console.log('Done');
-  })
-  .catch((e) => {
-    console.error(e);
+  return spawnSync(scriptPath, [taskName], {
+    shell: true,
+    cwd: process.cwd(),
+    env: {
+      ...process.env,
+      PATH,
+    },
+    stdio: 'inherit',
   });
+}
+
+// cacheTasks()
+//   .then(() => {
+//     console.log('Done');
+//   })
+//   .catch((e) => {
+//     console.error(e);
+//   });
+
+const result = execTask('fasker_eslint');
+console.log(result);
