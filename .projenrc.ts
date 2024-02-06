@@ -5,7 +5,7 @@ const project = new typescript.TypeScriptProject({
   description: 'A Faster Task Runner for Projen tasks',
   defaultReleaseBranch: 'main',
   authorName: 'Yuichi Kageyama',
-  deps: ['chalk', 'commander', 'pino', 'pino-pretty'],
+  deps: ['chalk', 'commander', 'pino', 'pino-pretty', 'projen'],
   entrypoint: 'lib/index.js',
   minNodeVersion: '16.0.0',
   packageManager: javascript.NodePackageManager.PNPM,
