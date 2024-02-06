@@ -32,7 +32,9 @@ export class TaskRenderer {
       if (this.taskNameMapping[name]) {
         throw new Error(`task name already exists: ${name}`);
       }
-      this.taskNameMapping[name] = name.replaceAll(bashFunctionNameRegex, '_');
+      // Prevents function naming conflicts
+      this.taskNameMapping[name] =
+        `fasker_${name.replaceAll(bashFunctionNameRegex, '_')}`;
     }
   }
 
@@ -50,12 +52,14 @@ export class TaskRenderer {
   }
 
   private renderTaskScript(name: string) {
-    console.log(JSON.stringify(this.cachedTasks, null, 2));
-
     const task = this.cachedTasks[name];
 
     if (!task) {
       throw new Error(`task not found: ${name}`);
+    }
+
+    if (!task.steps.length) {
+      return 'return 0;';
     }
 
     const lines: string[] = [];
@@ -111,7 +115,7 @@ export class TaskRenderer {
       }
 
       if (step.say) {
-        execs.push(`echo ${step.say}`);
+        execs.push(`echo "${step.say}"`);
       }
 
       if (step.spawn) {
@@ -124,7 +128,7 @@ export class TaskRenderer {
         // Idea is to create a function that will be called
         execs.push(`${this.taskNameMapping[step.spawn]}`);
       }
-      steps.push(execs);
+      steps.push(execs.length ? execs : ['return 0;']);
     }
     this.cachedTasks[name] = { steps };
   }
