@@ -46,4 +46,6 @@ project.eslint?.addRules({
   'no-multiple-empty-lines': ['off'],
 });
 
+project.gitignore.exclude('.fasker-cache')
+
 project.synth();

@@ -1,8 +1,12 @@
-import fs from 'fs';
+import fs, { existsSync, mkdir } from 'fs';
 import path from 'path';
 import { TasksManifest } from 'projen';
-import { TaskCache } from './lib/cache';
+import { TaskRenderer } from './lib/cache';
 import { logger } from './lib/logger';
+
+// TODO: Configurable cache path
+const cachePath = path.resolve(process.cwd(), '.fasker-cache');
+
 /**
  * Gets the tasks.json file path by checking
  * 1. Current directory
@@ -39,6 +43,22 @@ function parseTaskJson(): TasksManifest {
   return JSON.parse(taskJson); //Assumption that tasks.json is valid
 }
 
-const cache = new TaskCache(parseTaskJson().tasks ?? {});
+async function ensureDir(dir: string): Promise<void> {
+  if (!existsSync(dir)) await fs.promises.mkdir(dir, { recursive: true });
+}
 
-console.log(cache.render());
+async function cacheTasks() {
+  const fileStats = getTaskJsonDetails();
+  const ensureDirPromise = ensureDir(cachePath);
+  const renderer = new TaskRenderer(parseTaskJson().tasks ?? {});
+  const fileName = fileStats.mtime;
+  await ensureDirPromise;
+  fs.writeFileSync(path.join(cachePath, `${fileName}.sh`), renderer.render());
+}
+cacheTasks()
+  .then(() => {
+    console.log('Done');
+  })
+  .catch((e) => {
+    console.error(e);
+  });

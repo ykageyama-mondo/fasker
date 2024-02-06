@@ -10,7 +10,7 @@ interface CachedTask {
 // TODO refine this. Temporary because I can't be bothered figuring out the regex
 const bashFunctionNameRegex = new RegExp(/[^0-9a-zA-Z_]/, 'g');
 
-export class TaskCache {
+export class TaskRenderer {
   private cachedTasks: Record<string, CachedTask> = {};
   private tasks: Record<string, TaskSpec>;
   private taskNameMapping: Record<string, string> = {};
@@ -36,6 +36,7 @@ export class TaskCache {
     }
   }
 
+  // TODO improve rendering. Minimal rendering of commands. might be slow for large task manifests
   render() {
     const lines: string[] = [];
     for (const task of Object.keys(this.cachedTasks)) {
@@ -66,8 +67,8 @@ export class TaskCache {
     for (let i = 0; i < task.steps.length; i++) {
       commands = task.steps[i];
       // TODO be smarter about indentation
-      lines.push(`  step${i}() {\n    ${commands.join('\n')}\n}`);
-      lines.push(`  step${i} $@`);
+      lines.push(`step${i}() {\n${commands.join('\n')}\n}`);
+      lines.push(`step${i} $@`);
     }
 
     return lines.join('\n');
