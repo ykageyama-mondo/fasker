@@ -1,6 +1,9 @@
 {
   "name": "fasker",
   "description": "A Faster Task Runner for Projen tasks",
+  "bin": {
+    "fasker": "bin/fasker"
+  },
   "scripts": {
     "build": "npx projen build",
     "bump": "npx projen bump",
