@@ -13,6 +13,7 @@ const themes = [
   },
 ];
 const barHeight = 100;
+const barColor = '#473BF0';
 
 export async function exportAverageToGraph(average: Record<string, number>) {
   const numMethods = Object.keys(average).length;
@@ -60,7 +61,7 @@ export async function exportAverageToGraph(average: Record<string, number>) {
                 x2: { scale: 'x', field: 'time' },
                 y: { scale: 'y', field: 'method' },
                 height: { scale: 'y', band: 1 },
-                fill: { value: '#FFE066' },
+                fill: { value: barColor },
               },
             },
           },
