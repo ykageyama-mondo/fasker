@@ -43,7 +43,13 @@ const project = new typescript.TypeScriptProject({
       resolveJsonModule: undefined,
     },
   },
-  projenCommand: 'npx fasker',
+  releaseWorkflowSetupSteps: [
+    {
+      name: 'Run projen',
+      run: 'npx projen',
+    },
+  ],
+  projenCommand: './scripts/faskerx.js',
 });
 
 project.eslint?.addRules({
@@ -81,9 +87,14 @@ project.addTask('benchmark', {
     },
   ],
 });
-new Fasker(project, {
-  version: 'file:.',
-});
+
+// This is fine. Complains about projenCommand not being fasker but we're special :)
+// Joys of Dog fooding
+try {
+  new Fasker(project, {
+    version: 'file:.',
+  });
+} catch (error) {}
 
 new TextFile(project, '.nvmrc', {
   lines: [nodeVersion],

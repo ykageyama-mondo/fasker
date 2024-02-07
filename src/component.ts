@@ -24,13 +24,15 @@ export interface FaskerOptions {
  * new Fasker(project);
  */
 export class Fasker extends Component {
+  private readonly version: string;
   constructor(project: NodeProject, options?: FaskerOptions) {
     super(project);
-    const version = options?.version ?? 'latest';
-    project.addDevDeps(`fasker@${version}`);
+    this.version = options?.version ?? 'latest';
+    project.addDevDeps(`fasker@${this.version}`);
 
     project.gitignore.exclude('.fasker-cache');
+    if (project.projenCommand !== 'npx fasker') {
+      throw new Error('Please change the projenCommand to `npx fasker`');
+    }
   }
-
-  synthesize(): void {}
 }

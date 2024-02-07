@@ -34,8 +34,6 @@ function getTaskJsonDetails() {
   const taskJsonPath = getTaskJsonPath();
   const stats = fs.statSync(taskJsonPath);
 
-  console.log(stats.mtimeMs);
-
   return stats;
 }
 
