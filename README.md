@@ -45,7 +45,7 @@ npx tsx ./scripts/benchmark.ts
 - [x] Step env
 - [x] Step args
 - [ ] Receive args from parents
-- [ ] Caching
+- [x] Caching
 - [x] CLI
 - [ ] CLI completions
 - [x] Projen component to make everything fasker

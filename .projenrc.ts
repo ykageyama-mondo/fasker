@@ -43,7 +43,7 @@ const project = new typescript.TypeScriptProject({
       resolveJsonModule: undefined,
     },
   },
-  projenCommand: 'fasker',
+  projenCommand: 'npx fasker',
 });
 
 project.eslint?.addRules({

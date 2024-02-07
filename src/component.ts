@@ -12,12 +12,12 @@ export interface FaskerOptions {
 /**
  * Component to add fasker to your project.
  *
- * **You will need to manually change the projenCommand to `fasker` in your project constructor props.**
+ * **You will need to manually change the projenCommand to `npx fasker` in your project constructor props.**
  *
  * @example
  * const project = new NodeProject({
  *  ...
- *  projenCommand: 'fasker',
+ *  projenCommand: 'npx fasker',
  *  ...
  * });
  *
