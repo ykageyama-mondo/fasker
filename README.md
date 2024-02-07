@@ -4,15 +4,17 @@ A ***Fa***st Ta***sk*** Runn***er*** for Projen tasks
 
 ## Tasks
 
-- [ ] Compile tasks into a script
-- [ ] Spawn
+- [x] Compile tasks into a script
+- [x] Spawn
 - [ ] builtins
 - [ ] Task Manifest env
-- [ ] Task env
-- [ ] Step env
-- [ ] Step args
+- [x] Task env
+- [x] Step env
+- [x] Step args
 - [ ] Receive args from parents
 - [ ] Caching
+- [ ] CLI
+- [ ] CLI completions
 
 ## Goals
 

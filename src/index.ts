@@ -1,9 +1,10 @@
 import { spawnSync } from 'child_process';
 import fs, { existsSync } from 'fs';
 import path from 'path';
+import { program } from 'commander';
 import { TasksManifest } from 'projen';
 import { logger } from './lib/logger';
-import { TaskRenderer } from './lib/renderer';
+import { TaskRenderer, convertToBashFunctionName } from './lib/renderer';
 
 // TODO: Configurable cache path
 const cachePath = path.resolve(process.cwd(), '.fasker-cache');
@@ -78,19 +79,26 @@ export async function cacheTasks() {
   const script = renderer.render();
   const cacheFilePath = path.join(cachePath, `${fileName}.sh`);
 
+  logger.debug('Caching tasks to', cacheFilePath);
   fs.writeFileSync(cacheFilePath, prettify ? prettifyBash(script) : script);
   fs.chmodSync(cacheFilePath, '755');
 }
 
 // TODO optimise
-function execTask(taskName: string) {
+async function execTask(taskName: string) {
   const fileStats = getTaskJsonDetails();
+
   const fileName = Math.floor(fileStats.mtimeMs).toString();
   const scriptPath = path.join(cachePath, `${fileName}.sh`);
-  console.log(scriptPath);
+  if (!fs.existsSync(scriptPath)) {
+    logger.debug('Cache not found. Caching tasks');
+    await cacheTasks();
+  }
+
   const PATH = `${process.env.PATH}:${path.resolve('node_modules/.bin')}`;
 
-  return spawnSync(scriptPath, [taskName], {
+  logger.info('Running task:', taskName);
+  return spawnSync(scriptPath, [convertToBashFunctionName(taskName)], {
     shell: true,
     cwd: process.cwd(),
     env: {
@@ -109,5 +117,11 @@ function execTask(taskName: string) {
 //     console.error(e);
 //   });
 
-const result = execTask('fasker_eslint');
-console.log(result);
+function cli() {
+  program.argument('<task>', 'Task to run').action(async (task) => {
+    await execTask(task);
+  });
+  program.parse();
+}
+
+cli();

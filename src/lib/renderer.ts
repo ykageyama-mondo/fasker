@@ -7,6 +7,9 @@ interface CachedTask {
   steps: string[][];
 }
 
+export const convertToBashFunctionName = (name: string) =>
+  `fasker_${name.replaceAll(bashFunctionNameRegex, '_')}`;
+
 // TODO refine this. Temporary because I can't be bothered figuring out the regex
 const bashFunctionNameRegex = new RegExp(/[^0-9a-zA-Z_]/, 'g');
 
@@ -33,8 +36,7 @@ export class TaskRenderer {
         throw new Error(`task name already exists: ${name}`);
       }
       // Prevents function naming conflicts
-      this.taskNameMapping[name] =
-        `fasker_${name.replaceAll(bashFunctionNameRegex, '_')}`;
+      this.taskNameMapping[name] = convertToBashFunctionName(name);
     }
   }
 
