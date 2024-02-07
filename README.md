@@ -10,6 +10,30 @@ A ***Fa***st Ta***sk*** Runn***er*** for Projen tasks
   </picture>
 </p>
 
+## Installation
+
+These instructions are temporary until I release this to npm registry. (NOTE: This might not work. I haven't tested it :P)
+
+1. Get the latest release and extract it to a folder
+```sh
+mkdir -p fasker && curl -s https://api.github.com/repos/ykageyama-mondo/fasker/releases/latest | jq '.tarball_url' | xargs -r -I{} curl -L {} | tar -xz -C fasker --strip-components=1
+```
+2. Build the project
+```sh
+pushd fasker && pnpm install && npx projen && pnpm build && popd
+```
+3. Install in your project
+```typescript
+const project = new NodeProject({
+  ...,
+  projenCommand: 'npx fasker',
+  ...
+})
+
+new Fasker(project, {
+  version: 'file:./fasker'
+})
+```
 
 ## Local Development
 
