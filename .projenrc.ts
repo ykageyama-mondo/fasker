@@ -43,12 +43,6 @@ const project = new typescript.TypeScriptProject({
       resolveJsonModule: undefined,
     },
   },
-  releaseWorkflowSetupSteps: [
-    {
-      name: 'Run projen',
-      run: 'npx projen',
-    },
-  ],
   projenCommand: './scripts/faskerx.js',
 });
 

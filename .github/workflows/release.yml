@@ -35,8 +35,6 @@ jobs:
           node-version: "20"
       - name: Install dependencies
         run: pnpm i --frozen-lockfile
-      - name: Run projen
-        run: npx projen
       - name: release
         run: ./scripts/faskerx.js release
       - name: Check if version has already been tagged
