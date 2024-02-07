@@ -1,5 +1,5 @@
+import path from 'path';
 import { TaskSpec } from 'projen';
-import { logger } from './logger';
 
 interface CachedTask {
   // ! inject process.env and
@@ -117,7 +117,13 @@ export class TaskRenderer {
       }
 
       if (step.builtin) {
-        logger.warn(`Builtin steps are not supported in cached tasks (yet)`);
+        // TODO: This is dumb. Update to use a better way to do this
+        const builtinPath = path.resolve(
+          process.cwd(),
+          'node_modules/projen/lib',
+          `${step.builtin}.task.js`,
+        );
+        execs.push(`'${process.execPath}' '${builtinPath}' ${args}`);
       }
 
       if (step.say) {
@@ -145,7 +151,7 @@ export class TaskRenderer {
 
   private declareEnv(env: Record<string, string>) {
     return Object.entries(env)
-      .map(([k, v]) => `${k}=${v}`)
+      .map(([k, v]) => `export ${k}="${v}"`)
       .join('\n');
   }
 }
