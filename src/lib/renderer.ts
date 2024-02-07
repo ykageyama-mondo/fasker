@@ -136,7 +136,7 @@ export class TaskRenderer {
       }
       steps.push(execs.length ? execs : ['return 0;']);
     }
-    this.cachedTasks[name] = { steps };
+    this.cachedTasks[name] = { steps, env: task.env };
   }
 
   private conditionCommand(condition: string) {

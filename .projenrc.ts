@@ -54,14 +54,20 @@ project.gitignore.exclude('.fasker-cache');
 
 project.addTask('stubTask1', {
   description: 'Stub task for testing',
+  env: {
+    foo: 'bar',
+  },
   steps: [
     {
+      env: {
+        woo: 'hoo',
+      },
       say: 'Stub task 1',
-      exec: 'echo "Stub task 1"',
+      exec: 'echo "Stub task 1 $foo"',
     },
     {
       say: 'Stub task 2',
-      exec: 'echo "Stub task 2"',
+      exec: 'echo "Stub task 2 $woo"',
     },
   ],
 });
