@@ -1,5 +1,5 @@
 import { spawnSync } from 'child_process';
-import fs, { existsSync } from 'fs';
+import fs from 'fs';
 import path from 'path';
 import { program } from 'commander';
 import { TasksManifest } from 'projen';
@@ -8,9 +8,6 @@ import { TaskRenderer, convertToBashFunctionName } from './lib/renderer';
 
 // TODO: Configurable cache path
 const cachePath = path.resolve(process.cwd(), '.fasker-cache');
-
-// TODO: Commander option
-const prettify: boolean = true;
 
 /**
  * Gets the tasks.json file path by checking
@@ -49,7 +46,7 @@ function parseTaskJson(): TasksManifest {
 }
 
 async function ensureDir(dir: string) {
-  if (!existsSync(dir)) await fs.promises.mkdir(dir, { recursive: true });
+  if (!fs.existsSync(dir)) await fs.promises.mkdir(dir, { recursive: true });
 }
 
 // TODO: find a package or something to do this. Good enough for now
@@ -69,7 +66,7 @@ function prettifyBash(script: string) {
   return output.join('\n');
 }
 
-export async function cacheTasks() {
+export async function cacheTasks(prettify: boolean) {
   const fileStats = getTaskJsonDetails();
   const ensureDirPromise = ensureDir(cachePath);
   const renderer = new TaskRenderer(parseTaskJson().tasks ?? {});
@@ -85,14 +82,17 @@ export async function cacheTasks() {
 }
 
 // TODO optimise
-async function execTask(taskName: string, cache: boolean = true) {
+async function execTask(taskName: string, opts: ExecTaskOptions) {
+  const cache = opts.cache ?? true;
+  const prettify = opts.prettify ?? false;
+
   const fileStats = getTaskJsonDetails();
 
   const fileName = Math.floor(fileStats.mtimeMs).toString();
   const scriptPath = path.join(cachePath, `${fileName}.sh`);
   if (!cache || !fs.existsSync(scriptPath)) {
     logger.debug('Cache not found. Caching tasks');
-    await cacheTasks();
+    await cacheTasks(prettify);
   }
 
   const PATH = `${process.env.PATH}:${path.resolve('node_modules/.bin')}`;
@@ -109,20 +109,32 @@ async function execTask(taskName: string, cache: boolean = true) {
   });
 }
 
-// cacheTasks()
-//   .then(() => {
-//     console.log('Done');
-//   })
-//   .catch((e) => {
-//     console.error(e);
-//   });
+interface ExecTaskOptions {
+  cache: boolean;
+  prettify: boolean;
+}
+
+function execProjen() {
+  logger.info('Running npx projen');
+  spawnSync('npx', ['projen'], {
+    cwd: process.cwd(),
+  });
+}
 
 function cli() {
   program
-    .argument('<task>', 'Task to run')
+    .argument(
+      '[task]',
+      'Task to run. If not provided, will default to running `npx projen`',
+    )
     .option('--no-cache', 'Run without cache')
+    .option('--prettify', 'Prettify the bash script')
     .action(async (task, options) => {
-      await execTask(task, options.cache);
+      if (!task) {
+        execProjen();
+      } else {
+        await execTask(task, options);
+      }
     });
   program.parse();
 }

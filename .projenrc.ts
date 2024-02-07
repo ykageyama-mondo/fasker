@@ -1,4 +1,5 @@
 import { typescript, javascript, TextFile } from 'projen';
+import { Fasker } from './src/component';
 const nodeVersion = '20';
 const project = new typescript.TypeScriptProject({
   name: 'fasker',
@@ -42,6 +43,7 @@ const project = new typescript.TypeScriptProject({
       resolveJsonModule: undefined,
     },
   },
+  projenCommand: 'fasker',
 });
 
 project.eslint?.addRules({
@@ -49,8 +51,6 @@ project.eslint?.addRules({
   'no-multiple-empty-lines': ['off'],
 });
 project.tsconfigDev.addInclude('scripts');
-
-project.gitignore.exclude('.fasker-cache');
 
 project.addTask('stubTask1', {
   description: 'Stub task for testing',
@@ -80,6 +80,9 @@ project.addTask('benchmark', {
       spawn: 'stubTask1',
     },
   ],
+});
+new Fasker(project, {
+  version: 'file:.',
 });
 
 new TextFile(project, '.nvmrc', {

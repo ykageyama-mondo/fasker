@@ -48,5 +48,7 @@ npx tsx ./scripts/benchmark.ts
 - [ ] Caching
 - [x] CLI
 - [ ] CLI completions
-- [ ] Projen component to make everything fasker
+- [x] Projen component to make everything fasker
 - [x] Benchmarks
+- [ ] Cache busting on fasker update
+- [ ] Prettier pino pretty
