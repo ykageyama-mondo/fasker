@@ -80,6 +80,10 @@
       "type": "build"
     },
     {
+      "name": "vega",
+      "type": "build"
+    },
+    {
       "name": "chalk",
       "type": "runtime"
     },

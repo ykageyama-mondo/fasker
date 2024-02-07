@@ -5,6 +5,7 @@
     "fasker": "bin/fasker"
   },
   "scripts": {
+    "benchmark": "npx projen benchmark",
     "build": "npx projen build",
     "bump": "npx projen bump",
     "clobber": "npx projen clobber",
@@ -17,6 +18,7 @@
     "post-upgrade": "npx projen post-upgrade",
     "pre-compile": "npx projen pre-compile",
     "release": "npx projen release",
+    "stubTask1": "npx projen stubTask1",
     "test": "npx projen test",
     "test:watch": "npx projen test:watch",
     "unbump": "npx projen unbump",
@@ -46,7 +48,8 @@
     "standard-version": "^9",
     "ts-jest": "^29.1.2",
     "ts-node": "^10.9.2",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "vega": "^5.27.0"
   },
   "dependencies": {
     "chalk": "^5.3.0",

@@ -6,6 +6,7 @@ const project = new typescript.TypeScriptProject({
   defaultReleaseBranch: 'main',
   authorName: 'Yuichi Kageyama',
   deps: ['chalk', 'commander', 'pino', 'pino-pretty', 'projen'],
+  devDeps: ['vega'],
   entrypoint: 'lib/index.js',
   minNodeVersion: '16.0.0',
   packageManager: javascript.NodePackageManager.PNPM,
@@ -45,7 +46,32 @@ project.eslint?.addRules({
   'key-spacing': ['off'],
   'no-multiple-empty-lines': ['off'],
 });
+project.tsconfigDev.addInclude('scripts');
 
 project.gitignore.exclude('.fasker-cache');
+
+project.addTask('stubTask1', {
+  description: 'Stub task for testing',
+  steps: [
+    {
+      say: 'Stub task 1',
+      exec: 'echo "Stub task 1"',
+    },
+    {
+      say: 'Stub task 2',
+      exec: 'echo "Stub task 2"',
+    },
+  ],
+});
+project.addTask('benchmark', {
+  steps: [
+    {
+      say: 'Benchmarking',
+    },
+    {
+      spawn: 'stubTask1',
+    },
+  ],
+});
 
 project.synth();

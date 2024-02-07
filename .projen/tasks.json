@@ -1,5 +1,16 @@
 {
   "tasks": {
+    "benchmark": {
+      "name": "benchmark",
+      "steps": [
+        {
+          "say": "Benchmarking"
+        },
+        {
+          "spawn": "stubTask1"
+        }
+      ]
+    },
     "build": {
       "name": "build",
       "description": "Full release build",
@@ -179,6 +190,20 @@
         }
       ]
     },
+    "stubTask1": {
+      "name": "stubTask1",
+      "description": "Stub task for testing",
+      "steps": [
+        {
+          "say": "Stub task 1",
+          "exec": "echo \"Stub task 1\""
+        },
+        {
+          "say": "Stub task 2",
+          "exec": "echo \"Stub task 2\""
+        }
+      ]
+    },
     "test": {
       "name": "test",
       "description": "Run tests",
@@ -225,13 +250,13 @@
       },
       "steps": [
         {
-          "exec": "pnpx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@types/jest,@types/node,@typescript-eslint/eslint-plugin,@typescript-eslint/parser,constructs,eslint-config-prettier,eslint-import-resolver-typescript,eslint-plugin-import,eslint-plugin-prettier,eslint,jest,jest-junit,prettier,projen,standard-version,ts-jest,ts-node,typescript,chalk,commander,pino,pino-pretty"
+          "exec": "pnpx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@types/jest,@types/node,@typescript-eslint/eslint-plugin,@typescript-eslint/parser,constructs,eslint-config-prettier,eslint-import-resolver-typescript,eslint-plugin-import,eslint-plugin-prettier,eslint,jest,jest-junit,prettier,projen,standard-version,ts-jest,ts-node,typescript,vega,chalk,commander,pino,pino-pretty"
         },
         {
           "exec": "pnpm i --no-frozen-lockfile"
         },
         {
-          "exec": "pnpm update @types/jest @types/node @typescript-eslint/eslint-plugin @typescript-eslint/parser constructs eslint-config-prettier eslint-import-resolver-typescript eslint-plugin-import eslint-plugin-prettier eslint jest jest-junit prettier projen standard-version ts-jest ts-node typescript chalk commander pino pino-pretty"
+          "exec": "pnpm update @types/jest @types/node @typescript-eslint/eslint-plugin @typescript-eslint/parser constructs eslint-config-prettier eslint-import-resolver-typescript eslint-plugin-import eslint-plugin-prettier eslint jest jest-junit prettier projen standard-version ts-jest ts-node typescript vega chalk commander pino pino-pretty"
         },
         {
           "exec": "npx projen"

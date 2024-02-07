@@ -85,12 +85,12 @@ export async function cacheTasks() {
 }
 
 // TODO optimise
-async function execTask(taskName: string) {
+async function execTask(taskName: string, noCache: boolean = false) {
   const fileStats = getTaskJsonDetails();
 
   const fileName = Math.floor(fileStats.mtimeMs).toString();
   const scriptPath = path.join(cachePath, `${fileName}.sh`);
-  if (!fs.existsSync(scriptPath)) {
+  if (noCache || !fs.existsSync(scriptPath)) {
     logger.debug('Cache not found. Caching tasks');
     await cacheTasks();
   }
@@ -118,9 +118,12 @@ async function execTask(taskName: string) {
 //   });
 
 function cli() {
-  program.argument('<task>', 'Task to run').action(async (task) => {
-    await execTask(task);
-  });
+  program
+    .argument('<task>', 'Task to run')
+    .option('--no-cache', 'Run without cache')
+    .action(async (task, options) => {
+      await execTask(task, options.noCache);
+    });
   program.parse();
 }
 
