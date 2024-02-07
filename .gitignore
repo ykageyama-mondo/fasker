@@ -51,4 +51,5 @@ junit.xml
 /dist/
 !/.eslintrc.json
 .fasker-cache
+!/.nvmrc
 !/.projenrc.ts

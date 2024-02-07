@@ -1,5 +1,5 @@
-import { typescript, javascript } from 'projen';
-
+import { typescript, javascript, TextFile } from 'projen';
+const nodeVersion = '20';
 const project = new typescript.TypeScriptProject({
   name: 'fasker',
   description: 'A Faster Task Runner for Projen tasks',
@@ -9,6 +9,7 @@ const project = new typescript.TypeScriptProject({
   devDeps: ['vega'],
   entrypoint: 'lib/index.js',
   minNodeVersion: '16.0.0',
+  workflowNodeVersion: nodeVersion,
   packageManager: javascript.NodePackageManager.PNPM,
   projenrcTs: true,
   prettier: true,
@@ -73,6 +74,10 @@ project.addTask('benchmark', {
       spawn: 'stubTask1',
     },
   ],
+});
+
+new TextFile(project, '.nvmrc', {
+  lines: [nodeVersion],
 });
 
 project.synth();
