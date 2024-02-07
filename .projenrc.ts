@@ -12,6 +12,7 @@ const project = new typescript.TypeScriptProject({
   packageManager: javascript.NodePackageManager.PNPM,
   projenrcTs: true,
   prettier: true,
+  pnpmVersion: '8',
   prettierOptions: {
     settings: {
       bracketSpacing: true,
