@@ -135,10 +135,10 @@ export class TaskRenderer {
         if (!taskSpec) {
           throw new Error(`task not found: ${step.spawn}`);
         }
-        this.compileTask(taskSpec);
 
         // Idea is to create a function that will be called
-        execs.push(`${this.taskNameMapping[step.spawn]}`);
+        // Run it in a subshell with (...)
+        execs.push(`(${this.taskNameMapping[step.spawn]})`);
       }
       steps.push(execs.length ? execs : ['return 0;']);
     }
