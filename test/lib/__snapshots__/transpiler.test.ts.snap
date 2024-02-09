@@ -1,0 +1,74 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`TaskTranspiler Step types 1`] = `
+"fasker_task1 () {
+  
+  step0() {
+    echo "hello" 
+  }
+  (step0 $@)
+  step1() {
+    echo "hello"
+  }
+  (step1 $@)
+  step2() {
+    if [[[ -d src ]]]; then return 0; fi
+  }
+  (step2 $@)
+  step3() {
+    echo foo bar $@
+  }
+  (step3 $@)
+  step4() {
+    (fasker_task2)
+  }
+  (step4 $@)
+}
+fasker_task2 () {
+  
+  return 0;
+}
+$1;"
+`;
+
+exports[`TaskTranspiler environment pollution 1`] = `
+"fasker_task1 () {
+  
+  export foo="original"
+  step0() {
+    node -e "console.log(process.env.foo)" 
+  }
+  (step0 $@)
+  step1() {
+    export foo="override"
+    node -e "console.log(process.env.foo)" 
+  }
+  (step1 $@)
+  step2() {
+    (fasker_task2)
+  }
+  (step2 $@)
+  step3() {
+    node -e "console.log(process.env.foo)" 
+  }
+  (step3 $@)
+  step4() {
+    node -e "console.log(process.env.bar)" 
+  }
+  (step4 $@)
+}
+fasker_task2 () {
+  
+  export bar="task2"
+  step0() {
+    node -e "console.log(process.env.foo)" 
+  }
+  (step0 $@)
+  step1() {
+    export foo="override2"
+    node -e "console.log(process.env.foo)" 
+  }
+  (step1 $@)
+}
+$1;"
+`;
