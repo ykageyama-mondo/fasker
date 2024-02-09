@@ -4,41 +4,30 @@ import path from 'path';
 import { program } from 'commander';
 import { ensureDir } from './lib/helper';
 import { logger } from './lib/logger';
-import { TaskRenderer, convertToBashFunctionName } from './lib/renderer';
 import { taskHandler } from './lib/tasks';
+import {
+  RenderOptions,
+  TaskTranspiler,
+  convertToFunctionName,
+} from './lib/transpiler';
 
 // TODO: Configurable cache path
 const cachePath = path.resolve(process.cwd(), '.fasker-cache');
 
-// TODO: find a package or something to do this. Good enough for now
-function prettifyBash(script: string) {
-  let depth = 0;
-  const lines = script.split('\n');
-  const output: string[] = [];
-  for (const line of lines) {
-    if (line.includes('}')) {
-      depth--;
-    }
-    output.push(' '.repeat(depth * 2) + line);
-    if (line.includes('{')) {
-      depth++;
-    }
-  }
-  return output.join('\n');
-}
-
-export async function cacheTasks(prettify: boolean) {
+export async function cacheTasks(renderOptions: RenderOptions) {
   const fileStats = taskHandler.getTaskJsonDetails();
   const ensureDirPromise = ensureDir(cachePath);
-  const renderer = new TaskRenderer(taskHandler.parseTaskJson().tasks ?? {});
+  const transpiler = new TaskTranspiler(
+    taskHandler.parseTaskJson().tasks ?? {},
+  );
   const fileName = Math.floor(fileStats.mtimeMs).toString();
   await ensureDirPromise;
 
-  const script = renderer.render();
+  const script = transpiler.render(renderOptions);
   const cacheFilePath = path.join(cachePath, `${fileName}.sh`);
 
   logger.debug('Caching tasks to', cacheFilePath);
-  fs.writeFileSync(cacheFilePath, prettify ? prettifyBash(script) : script);
+  fs.writeFileSync(cacheFilePath, script);
   fs.chmodSync(cacheFilePath, '755');
 }
 
@@ -46,6 +35,7 @@ export async function cacheTasks(prettify: boolean) {
 async function execTask(taskName: string, opts: ExecTaskOptions) {
   const cache = opts.cache ?? true;
   const prettify = opts.prettify ?? false;
+  const quiet = opts.quiet ?? false;
 
   const fileStats = taskHandler.getTaskJsonDetails();
 
@@ -53,13 +43,13 @@ async function execTask(taskName: string, opts: ExecTaskOptions) {
   const scriptPath = path.join(cachePath, `${fileName}.sh`);
   if (!cache || !fs.existsSync(scriptPath)) {
     logger.debug('Cache not found. Caching tasks');
-    await cacheTasks(prettify);
+    await cacheTasks({ quiet, prettify });
   }
 
   const PATH = `${process.env.PATH}:${path.resolve('node_modules/.bin')}`;
 
   logger.info('Running task:', taskName);
-  return spawnSync(scriptPath, [convertToBashFunctionName(taskName)], {
+  return spawnSync(scriptPath, [convertToFunctionName(taskName)], {
     shell: true,
     cwd: process.cwd(),
     env: {
@@ -73,6 +63,7 @@ async function execTask(taskName: string, opts: ExecTaskOptions) {
 interface ExecTaskOptions {
   cache: boolean;
   prettify: boolean;
+  quiet: boolean;
 }
 
 function execProjen() {
@@ -90,6 +81,7 @@ function cli() {
     )
     .option('--no-cache', 'Run without cache')
     .option('--prettify', 'Prettify the bash script')
+    .option('-q --quiet', 'Quiet mode')
     .action(async (task, options) => {
       if (!task) {
         execProjen();

@@ -1,19 +1,24 @@
 import path from 'path';
 import { TaskSpec } from 'projen';
 
+export interface RenderOptions {
+  prettify: boolean;
+  quiet: boolean;
+}
+
 interface CachedTask {
   // ! inject process.env and
   env?: Record<string, string>;
   steps: string[][];
 }
 
-export const convertToBashFunctionName = (name: string) =>
+export const convertToFunctionName = (name: string) =>
   `fasker_${name.replaceAll(bashFunctionNameRegex, '_')}`;
 
 // TODO refine this. Temporary because I can't be bothered figuring out the regex
 const bashFunctionNameRegex = new RegExp(/[^0-9a-zA-Z_]/, 'g');
 
-export class TaskRenderer {
+export class TaskTranspiler {
   private cachedTasks: Record<string, CachedTask> = {};
   private tasks: Record<string, TaskSpec>;
   private taskNameMapping: Record<string, string> = {};
@@ -26,7 +31,7 @@ export class TaskRenderer {
     let task;
     // TODO move this so its not on the constructor
     for (task of Object.values(tasks)) {
-      this.compileTask(task);
+      this.transpileTask(task);
     }
   }
 
@@ -36,17 +41,17 @@ export class TaskRenderer {
         throw new Error(`task name already exists: ${name}`);
       }
       // Prevents function naming conflicts
-      this.taskNameMapping[name] = convertToBashFunctionName(name);
+      this.taskNameMapping[name] = convertToFunctionName(name);
     }
   }
 
   // TODO improve rendering. Minimal rendering of commands. might be slow for large task manifests
-  render() {
+  render({ prettify, quiet }: RenderOptions) {
     const lines: string[] = [];
     for (const task of Object.keys(this.cachedTasks)) {
       lines.push(
         `${this.taskNameMapping[task]} () {`,
-        `echo "Running task: ${task}"`,
+        quiet ? '' : `echo "Running task: ${task}"`,
         this.renderTaskScript(task),
         '}',
       );
@@ -54,7 +59,9 @@ export class TaskRenderer {
     // TODO: find a better way to run a specific task
     lines.push('$1;');
 
-    return lines.join('\n');
+    const output = lines.join('\n');
+
+    return prettify ? this.prettifyBash(output) : output;
   }
 
   private renderTaskScript(name: string) {
@@ -76,15 +83,14 @@ export class TaskRenderer {
     let commands: string[];
     for (let i = 0; i < task.steps.length; i++) {
       commands = task.steps[i];
-      // TODO be smarter about indentation
       lines.push(`step${i}() {\n${commands.join('\n')}\n}`);
-      lines.push(`step${i} $@`);
+      lines.push(`(step${i} $@)`);
     }
 
     return lines.join('\n');
   }
 
-  private compileTask(task: TaskSpec) {
+  private transpileTask(task: TaskSpec) {
     const name = task.name;
     if (this.cachedTasks[name]) return;
 
@@ -153,5 +159,22 @@ export class TaskRenderer {
     return Object.entries(env)
       .map(([k, v]) => `export ${k}="${v}"`)
       .join('\n');
+  }
+
+  // TODO: find a package or something to do this. Good enough for now
+  private prettifyBash(script: string) {
+    let depth = 0;
+    const lines = script.split('\n');
+    const output: string[] = [];
+    for (const line of lines) {
+      if (line.includes('}')) {
+        depth--;
+      }
+      output.push(' '.repeat(depth * 2) + line);
+      if (line.includes('{')) {
+        depth++;
+      }
+    }
+    return output.join('\n');
   }
 }
