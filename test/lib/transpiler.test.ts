@@ -118,8 +118,6 @@ describe('TaskTranspiler', () => {
       shell: true,
     });
 
-    console.log(result.stdout);
-
     expect(script).toMatchSnapshot();
     expect(result.status).toBe(0);
     expect(result.stdout.split('\n').filter((x) => x)).toEqual([
