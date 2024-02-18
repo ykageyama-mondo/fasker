@@ -43,6 +43,9 @@ const project = new typescript.TypeScriptProject({
       resolveJsonModule: undefined,
     },
   },
+  depsUpgradeOptions: {
+    workflow: false,
+  },
   projenCommand: './scripts/faskerx.js',
 });
 
